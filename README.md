@@ -1,24 +1,20 @@
-# Chatbot con Google Gemini + RAG + Memoria
+# 🥤 Chatbot AJE Group - Asistente Virtual Inteligente
 
-Un chatbot inteligente que utiliza Google Gemini 2.5 Flash con capacidades de RAG (Retrieval-Augmented Generation) automático y memoria de conversación. Responde preguntas basándose en documentos PDF y mantiene el contexto de la conversación.
+Un chatbot avanzado para AJE Group que combina **RAG (Retrieval-Augmented Generation)** con **identificación visual de productos** usando Google Gemini 2.5 Flash. Responde preguntas sobre estrategia de internacionalización y productos AJE.
 
 ## 🚀 Características Principales
 
-- **Google Gemini 2.5 Flash**: Modelo de última generación de Google
-- **RAG Automático**: Integra información de documentos PDF cuando es relevante
-- **Base de Productos**: 15+ productos AJE con información extraída de imágenes
-- **Identificación Visual**: Sube una imagen y el chatbot identifica el producto
-- **Memoria de Conversación**: Recuerda el historial completo de la charla
-- **Embeddings Inteligentes**: OpenAI primario con fallback a HuggingFace local
-- **FAISS Optimizado**: Vector store con cache local para evitar recálculos
-- **Respuestas Naturales**: Conversación fluida como asistente real de AJE
+### 💬 **Conversación Inteligente**
+- **Google Gemini 2.5 Flash**: Modelo de última generación
+- **RAG Automático**: Consulta documentos PDF de estrategia empresarial
+- **Memoria de Conversación**: Mantiene contexto completo del chat
+- **Respuestas Naturales**: Conversación fluida como asistente real
 
-## 📋 Requisitos
-
-- Python 3.8+
-- API Key de Google AI (gratuita)
-- API Key de OpenAI (opcional, usa HuggingFace como fallback)
-- Documentos PDF en carpeta `data/`
+### 📸 **Identificación Visual de Productos**
+- **Sube imágenes** y obtén identificación automática
+- **15+ productos AJE** en la base de datos
+- **Tolerancia de volumen** ±100ml para variaciones de etiquetado
+- **Análisis con IA**: Extrae características visuales automáticamente
 
 ## 🛠️ Instalación
 
@@ -31,8 +27,10 @@ cd langchain-bot
 ### 2. Crear entorno virtual
 ```bash
 python -m venv venv
+
 # Windows
 venv\Scripts\activate
+
 # Linux/Mac
 source venv/bin/activate
 ```
@@ -43,157 +41,185 @@ pip install -r requirements.txt
 ```
 
 ### 4. Configurar API Keys
-Crea un archivo `.env` con:
+Crear archivo `.env` en la raíz del proyecto:
 ```bash
-# Obligatorio
-GOOGLE_API_KEY=GOOGLE_KEY
+# Obligatorio - Obtener en https://aistudio.google.com/app/apikey
+GOOGLE_API_KEY=tu_google_api_key_aqui
 
-# Opcional (usa HuggingFace si no tienes)
-OPENAI_API_KEY=OPENAI_KEY
+# Opcional - Si no tienes, usa HuggingFace automáticamente
+OPENAI_API_KEY=tu_openai_api_key_aqui
 ```
 
-**Obtener claves:**
-- Google AI: https://aistudio.google.com/app/apikey (gratis)
-- OpenAI: https://platform.openai.com/api-keys (opcional)
-
-### 5. Agregar documentos
+### 5. Agregar documentos (opcional)
 ```bash
 mkdir data
-# Colocar archivos PDF en la carpeta data/
+# Colocar archivos PDF sobre estrategia de AJE en la carpeta data/
 ```
 
-## 🚀 Uso
+## 🚀 Ejecución
 
-### Ejecutar el chatbot
+### 🌐 Interfaz Web (Recomendado)
+
+#### Opción 1: Lanzador automático
+```bash
+python run_streamlit.py
+```
+
+#### Opción 2: Streamlit directo
+```bash
+streamlit run streamlit_app.py
+```
+
+#### Opción 3: Puerto personalizado
+```bash
+streamlit run streamlit_app.py --server.port 8080
+```
+
+**Acceder a:** `http://localhost:8501` (o el puerto especificado)
+
+### 💻 Interfaz de Consola
 ```bash
 python app.py
 ```
 
-### Comandos disponibles
-- **Conversación normal**: Escribe cualquier pregunta
-- **`imagen`**: Identificar producto desde imagen
-- **`memoria`**: Ver historial de conversación
-- **`salir`**: Terminar el programa
+## 🎯 Funcionalidades Web
 
-### Ejemplos de uso
+### 💬 **Chat de Texto**
+- Escribe preguntas sobre productos o estrategia de AJE
+- Presiona **📤** para enviar
+- El input se limpia automáticamente
+- Historial completo de conversación
 
+### 📸 **Identificación Visual**
+- Arrastra y suelta imágenes de productos AJE
+- Formatos soportados: PNG, JPG, JPEG (máx. 200MB)
+- Identificación automática con información detallada
+- Preview temporal que desaparece después del análisis
+
+## 📝 Ejemplos de Uso
+
+### Consultas de Texto
 ```
-Tú: ¿Qué productos tiene AJE?
-Gemini: AJE Group tiene un portafolio diverso con 3 marcas principales:
-        Big Cola (gaseosa), Sporade (bebida deportiva) y Bio Amayu 
-        (jugos naturales). En total manejamos 15 productos diferentes.
+👤 Usuario: ¿Cuál es la estrategia de internacionalización de AJE?
 
-Tú: Describe Sporade
-Gemini: Sporade es nuestra línea de bebidas deportivas, perfecta para 
-        la hidratación. Está disponible en sabores como Blueberry, 
-        Tropical, Mandarina y Uva, todos en presentación de 500ml.
+🤖 AJE Assistant: ¡Excelente pregunta! La estrategia de AJE Group se centra 
+en llegar a la gran mayoría de la población en países emergentes, 
+enfocándonos especialmente en consumidores de medianos y bajos recursos...
 
-Tú: imagen
-📸 IDENTIFICACIÓN VISUAL DE PRODUCTOS
-Ruta de la imagen: fotos/sporade/SPORADE_BLUEBERRY_500.png
-🔍 Analizando imagen...
-Gemini: ¡Producto identificado! Es Sporade Blueberry (500ml)
-        • Marca: Sporade
-        • Sabor: Blueberry  
-        • Capacidad: 500ml
-        • Tipo: deportiva
+👤 Usuario: ¿Qué productos tienen?
 
-Tú: ¿Cuál es la estrategia de AJE?
-Gemini: Nuestra estrategia se basa en la democratización del consumo,
-        ofreciendo productos de calidad a precios accesibles...
+🤖 AJE Assistant: Nuestro portafolio incluye tres marcas principales:
+• Big Cola: Nuestra gaseosa emblema en 350ml, 1000ml y 3000ml
+• Sporade: Bebida deportiva en sabores Blueberry, Tropical, Mandarina...
+• Bio Amayu: Jugos naturales con sabores como Arándano, Manzana Camu...
 ```
 
-## 🏗️ Arquitectura
-
-### Sistema Híbrido Inteligente
-
-1. **Procesamiento de Documentos (RAG)**:
-   - PyPDFLoader para extracción de estrategia
-   - Chunking: 750 tokens, overlap 150
-   - Vector store FAISS con embeddings optimizados
-
-2. **Base de Productos AJE**:
-   - Procesamiento automático de imágenes con Gemini Vision
-   - Extracción de: marca, sabor, capacidad, tipo, características
-   - Base de datos JSON con 15+ productos
-
-3. **Identificación Visual**:
-   - Carga de imágenes por el usuario
-   - Análisis con Google Gemini Vision
-   - Comparación con base de productos conocidos
-   - Identificación automática con 80% de precisión
-
-4. **Motor de Decisión IA**:
-   - El modelo decide qué información usar
-   - Combina productos + estrategia según contexto
-   - Respuestas naturales sin formato predefinido
-
-### Memoria de Conversación
-- Lista simple de intercambios (usuario, bot)
-- Contexto de últimos 3 intercambios
-- Sin warnings de deprecación
-
-## 📁 Estructura del Proyecto
-
+### Identificación Visual
 ```
-langchain-bot/
-├── app.py                     # Chatbot principal con identificación visual
-├── process_products.py        # Procesador de imágenes con IA
-├── test_visual_identification.py # Pruebas de identificación visual
-├── data/                      # PDFs para RAG
-│   └── estrategia.pdf
-├── fotos/                     # Imágenes de productos AJE
-│   ├── big cola/
-│   ├── sporade/
-│   └── bio amayu/
-├── productos_aje.json         # Base de datos de productos (generado)
-├── faiss_index/              # Vector store (generado)
-├── .env                      # API keys
-├── requirements.txt          # Dependencias
-└── README.md                # Este archivo
+👤 Usuario: [Sube imagen de producto]
+
+🤖 AJE Assistant: 🎉 ¡Producto identificado!
+
+🥤 Producto: Sporade Tropical
+📏 Capacidad: 500ml
+🏷️ Tipo: Deportiva
+
+👁️ Descripción visual:
+Bebida de color rojo/naranja en botella plástica transparente con tapa 
+verde. Etiqueta predominantemente negra y verde con 'SPORADE' en letras 
+blancas y 'tropical' en franja roja.
 ```
+
+### 🧠 **Componentes Principales**
+
+#### 1. **RAG (Retrieval-Augmented Generation)**
+- **PyPDFLoader**: Extrae texto de PDFs de estrategia
+- **RecursiveCharacterTextSplitter**: Chunks de 750 tokens, overlap 150
+- **FAISS Vector Store**: Búsqueda semántica optimizada
+- **OpenAI/HuggingFace Embeddings**: Fallback automático
+
+#### 2. **Base de Productos**
+- **Procesamiento automático**: `process_products.py` analiza imágenes
+- **Extracción de metadatos**: Marca, sabor, capacidad desde nombres de archivo
+- **Análisis visual con IA**: Colores, envase, características especiales
+- **JSON estructurado**: `productos_aje.json` con 15+ productos
+
+#### 3. **Identificación Visual**
+- **Google Gemini Vision**: Análisis de imágenes subidas por usuario
+- **Matching inteligente**: Compara con base de productos conocidos
+- **Tolerancia de volumen**: ±100ml para variaciones de etiquetado
+- **Scoring system**: Prioriza coincidencias exactas de marca y sabor
+
+#### 4. **Motor de Decisión IA**
+- **Contexto híbrido**: Combina RAG + productos según relevancia
+- **Prompt engineering**: Instrucciones para respuestas naturales
+- **Sin parsing rígido**: El modelo decide qué información usar
+- **Memoria conversacional**: Mantiene contexto de intercambios previos
+
 
 ## ⚙️ Configuración Avanzada
 
-### Ajustar chunks de PDF
+### 📊 Ajustar RAG
+En `app.py`, función `preprocess_pdf()`:
 ```python
-# En preprocess_pdf()
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=750,      # Cambiar tamaño
-    chunk_overlap=150,   # Cambiar overlap
+    chunk_size=750,      # Tamaño de chunks
+    chunk_overlap=150,   # Solapamiento
 )
+
+# Número de documentos recuperados
+retriever = db.as_retriever(search_kwargs={"k": 3})
 ```
 
-### Cambiar número de documentos RAG
+### 🎯 Modificar Tolerancia de Volumen
+En `app.py`, función `identify_product_from_image()`:
 ```python
-# En create_rag_chain()
-retriever = db.as_retriever(
-    search_kwargs={"k": 3}  # Cambiar número
-)
-```
-
-### Ajustar concisión de respuestas
-```python
-# En los prompts
-"Máximo 4 oraciones"  # Cambiar límite
+tolerance_ml = 100  # Cambiar tolerancia ±100ml
 ```
 
 ## 🔧 Solución de Problemas
 
-### Error de cuota OpenAI
-- **Síntoma**: "insufficient_quota"
-- **Solución**: Se activa automáticamente HuggingFace fallback
+### ❌ **Error: "insufficient_quota" (OpenAI)**
+**Solución**: El sistema usa automáticamente HuggingFace como fallback
+```bash
+# Se mostrará este mensaje:
+"⚠️ OpenAI no disponible, usando HuggingFace local..."
+```
 
-### No encuentra documentos
-- **Síntoma**: "No se encontraron PDFs"
-- **Solución**: Agregar archivos PDF a carpeta `data/`
+### ❌ **Error: "No se encontraron PDFs"**
+**Solución**: Agregar archivos PDF a la carpeta `data/`
+```bash
+mkdir data
+# Copiar PDFs de estrategia a data/
+```
 
-### FAISS no carga
-- **Síntoma**: Error cargando vector store
-- **Solución**: Se recrea automáticamente
+### ❌ **Error: FAISS no carga**
+**Solución**: Se recrea automáticamente el índice
+```bash
+# El sistema mostrará:
+"📚 Creando nueva base de conocimiento..."
+```
 
-### Respuestas vacías
-- **Síntoma**: Gemini no responde
-- **Solución**: Verificar API key de Google
+### ❌ **Error: Gemini no responde**
+**Solución**: Verificar API key de Google
+```bash
+# Verificar en .env:
+GOOGLE_API_KEY=tu_key_correcta
+```
 
-**Desarrollado con ❤️ usando Google Gemini, LangChain y FAISS**
+### ❌ **Imagen no se identifica**
+**Soluciones**:
+- Verificar que sea un producto AJE conocido
+- Imagen clara y bien iluminada
+- Etiqueta visible con marca y sabor
+- Formato PNG/JPG válido
+
+### ❌ **Input no se limpia**
+**Solución**: El sistema usa doble limpieza (key dinámica + JavaScript)
+- Refrescar la página si persiste
+- Verificar que JavaScript esté habilitado
+
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más detalles.
