@@ -1,0 +1,370 @@
+{
+  "metadata": {
+    "total_productos": 15,
+    "marcas": [
+      "Big Cola",
+      "Sporade",
+      "Bio Amayu"
+    ],
+    "tipos_bebida": [
+      "Deportiva",
+      "deportiva",
+      "jugo",
+      "Jugo",
+      "gaseosa"
+    ],
+    "generado_con": "Google Gemini Vision + Parsing de archivos",
+    "version": "1.0"
+  },
+  "productos": [
+    {
+      "id": "big_cola_cola_1000ml",
+      "marca": "Big Cola",
+      "producto": "Big Cola",
+      "sabor": "Cola",
+      "capacidad": "1000ml",
+      "tipo_bebida": "gaseosa",
+      "tipo_envase": "botella plástica",
+      "colores_principales": [
+        "rojo",
+        "blanco",
+        "amarillo",
+        "negro"
+      ],
+      "texto_visible": "BIG COLA 1,035 L",
+      "caracteristicas_especiales": "No visible",
+      "descripcion_visual": "Bebida de cola de color oscuro en una botella plástica transparente con tapa amarilla. La etiqueta es predominantemente roja con el texto 'BIG' en blanco y 'COLA' en amarillo, indicando un volumen de 1,035 litros.",
+      "imagenes": [
+        "BIG_COLA_1000.png",
+        "BIG_COLA_3000.png",
+        "BIG_COLA_350.png"
+      ],
+      "imagen_principal": "BIG_COLA_1000.png",
+      "total_imagenes": 3
+    },
+    {
+      "id": "big_cola_cola_3000ml",
+      "marca": "Big Cola",
+      "producto": "Big Cola",
+      "sabor": "Cola",
+      "capacidad": "3000ml",
+      "tipo_bebida": "gaseosa",
+      "tipo_envase": "botella plástica",
+      "colores_principales": [
+        "rojo",
+        "blanco",
+        "negro",
+        "amarillo"
+      ],
+      "texto_visible": "BIG COLA AJE Contenido Neto 3,03 L Bebida gaseosa sabor cola COMPARTIR TE HACE MAS GRANDE.",
+      "caracteristicas_especiales": "No visible",
+      "descripcion_visual": "Botella plástica grande de bebida gaseosa sabor cola. La etiqueta principal es roja con el texto 'BIG' en blanco y 'COLA' en amarillo. El contenido es de 3.03 litros.",
+      "imagenes": [
+        "BIG_COLA_3000_2.png"
+      ],
+      "imagen_principal": "BIG_COLA_3000_2.png",
+      "total_imagenes": 1
+    },
+    {
+      "id": "big_cola_cola_350ml",
+      "marca": "Big Cola",
+      "producto": "Big Cola",
+      "sabor": "Cola",
+      "capacidad": "350ml",
+      "tipo_bebida": "gaseosa",
+      "tipo_envase": "botella plástica",
+      "colores_principales": [
+        "rojo",
+        "amarillo",
+        "blanco",
+        "negro"
+      ],
+      "texto_visible": "BIG COLA, EL SABOR OFICIAL DE LA BICOLOR, F.P.F.",
+      "caracteristicas_especiales": "No visible",
+      "descripcion_visual": "Bebida gaseosa de color oscuro en una botella plástica transparente con tapa amarilla. La etiqueta es roja y muestra el logo 'BIG COLA' y el eslogan 'EL SABOR OFICIAL DE LA BICOLOR', junto con un escudo de la F.P.F. También se observan códigos QR y símbolos de reciclaje.",
+      "imagenes": [
+        "BIG_COLA_350_2.png"
+      ],
+      "imagen_principal": "BIG_COLA_350_2.png",
+      "total_imagenes": 1
+    },
+    {
+      "id": "bio_amayu_arandano_300ml",
+      "marca": "Bio Amayu",
+      "producto": "Bio Amayu",
+      "sabor": "Arandano",
+      "capacidad": "300ml",
+      "tipo_bebida": "Jugo",
+      "tipo_envase": "botella plástica",
+      "colores_principales": [
+        "morado",
+        "blanco",
+        "rojo oscuro"
+      ],
+      "texto_visible": "AMAYU CON ARÁNDANO SUPER FRUTA CON JUGOS 100% NATURALES",
+      "caracteristicas_especiales": "SUPER FRUTA, 100% NATURALES",
+      "descripcion_visual": "Bebida de jugo de arándano en una botella plástica transparente con líquido de color rojo oscuro. La etiqueta es de color morado oscuro con el logo de AMAYU en blanco y texto que indica 'CON ARÁNDANO SUPER FRUTA' y 'CON JUGOS 100% NATURALES'.",
+      "imagenes": [
+        "BIO_AMAYU_ARANDANO_300.png"
+      ],
+      "imagen_principal": "BIO_AMAYU_ARANDANO_300.png",
+      "total_imagenes": 1
+    },
+    {
+      "id": "bio_amayu_manzana_aguaymanto_carambola_300ml",
+      "marca": "Bio Amayu",
+      "producto": "Bio Amayu",
+      "sabor": "Manzana Aguaymanto Carambola",
+      "capacidad": "300ml",
+      "tipo_bebida": "jugo",
+      "tipo_envase": "botella de vidrio",
+      "colores_principales": [
+        "naranja",
+        "amarillo",
+        "blanco",
+        "azul",
+        "plateado",
+        "verde"
+      ],
+      "texto_visible": "bio AMAYU, NATURALES, 300 ml",
+      "caracteristicas_especiales": "Natural",
+      "descripcion_visual": "Botella de vidrio transparente con líquido de color amarillo-naranja. La etiqueta principal es de color naranja con el logo 'bio AMAYU' en blanco. Presenta un diseño grande y detallado en tonos azules y blancos que simula un sello postal, con imágenes de frutas como carambola (star fruit) y posiblemente mango. La tapa es plateada con texto 'bio AMAYU' en verde. Se observa el volumen de 300 ml.",
+      "imagenes": [
+        "BIO_AMAYU_MANZANA_AGUAYMANTO_CARAMBOLA_300.png"
+      ],
+      "imagen_principal": "BIO_AMAYU_MANZANA_AGUAYMANTO_CARAMBOLA_300.png",
+      "total_imagenes": 1
+    },
+    {
+      "id": "bio_amayu_manzana_camu_300ml",
+      "marca": "Bio Amayu",
+      "producto": "Bio Amayu",
+      "sabor": "Manzana Camu",
+      "capacidad": "300ml",
+      "tipo_bebida": "Jugo",
+      "tipo_envase": "Botella plástica",
+      "colores_principales": [
+        "Rosa",
+        "Blanco",
+        "Naranja",
+        "Verde"
+      ],
+      "texto_visible": "Bio, BIOMAYO, Con jugo",
+      "caracteristicas_especiales": "Con jugo, Bio",
+      "descripcion_visual": "Botella plástica transparente con líquido color melocotón. La etiqueta es rosa/rojo claro con el logo 'Bio' en blanco y dibujos de frutos color naranja/marrón con hojas verdes. La tapa es verde y se lee 'BIOMAYO'. En la parte inferior de la etiqueta se lee 'Con jugo'.",
+      "imagenes": [
+        "BIO_AMAYU_MANZANA_CAMU_300.png"
+      ],
+      "imagen_principal": "BIO_AMAYU_MANZANA_CAMU_300.png",
+      "total_imagenes": 1
+    },
+    {
+      "id": "bio_amayu_manzana_camu_300ml",
+      "marca": "Bio Amayu",
+      "producto": "Bio Amayu",
+      "sabor": "Manzana Camu",
+      "capacidad": "300ml",
+      "tipo_bebida": "Jugo",
+      "tipo_envase": "Botella de vidrio con tapa metálica",
+      "colores_principales": [
+        "Rosa claro",
+        "Naranja",
+        "Verde",
+        "Blanco",
+        "Plateado"
+      ],
+      "texto_visible": "AJE, bio, MANZANA Y CAMU CAMU, Con jugos 100% naturales, bioMAXI, 300 ml",
+      "caracteristicas_especiales": "Con jugos 100% naturales",
+      "descripcion_visual": "Botella de vidrio con líquido de color rojizo-anaranjado y una etiqueta rosa claro. La etiqueta presenta el logo 'AJE bio' en grande, ilustraciones de frutos anaranjados con hojas verdes, y el sabor 'Manzana y Camu Camu'. Se destaca que es 'Con jugos 100% naturales'.",
+      "imagenes": [
+        "BIO_AMAYU_MANZANA_CAMU_300_2.png",
+        "BIO_AMAYU_MANZANA_CAMU_300_3.png"
+      ],
+      "imagen_principal": "BIO_AMAYU_MANZANA_CAMU_300_2.png",
+      "total_imagenes": 2
+    },
+    {
+      "id": "sporade_blueberry_500ml",
+      "marca": "Sporade",
+      "producto": "Sporade",
+      "sabor": "Blueberry",
+      "capacidad": "500ml",
+      "tipo_bebida": "deportiva",
+      "tipo_envase": "botella plástica",
+      "colores_principales": [
+        "azul",
+        "verde",
+        "blanco",
+        "negro"
+      ],
+      "texto_visible": "SPORADE, blueberry, Contenido neto 500 mL",
+      "caracteristicas_especiales": "No visible",
+      "descripcion_visual": "Bebida deportiva de color azul, sabor blueberry, en una botella plástica transparente con tapa verde. La etiqueta es predominantemente azul y verde, con el logo 'SPORADE' en blanco.",
+      "imagenes": [
+        "SPORADE_BLUEBERRY_500.png"
+      ],
+      "imagen_principal": "SPORADE_BLUEBERRY_500.png",
+      "total_imagenes": 1
+    },
+    {
+      "id": "sporade_blueberry_500ml",
+      "marca": "Sporade",
+      "producto": "Sporade",
+      "sabor": "Blueberry",
+      "capacidad": "500ml",
+      "tipo_bebida": "deportiva",
+      "tipo_envase": "botella plástica",
+      "colores_principales": [
+        "azul",
+        "verde"
+      ],
+      "texto_visible": "SPORADE, Blueberry, Contenido 500 mL, Bebida isotónica de electrolitos sabor, SPORADE (grabado en botella)",
+      "caracteristicas_especiales": "isotónica, electrolitos",
+      "descripcion_visual": "Bebida deportiva de color azul sabor arándano (blueberry) en una botella plástica con tapa verde. La etiqueta principal es azul oscuro con el nombre 'SPORADE' en verde brillante. Se indica que es una bebida isotónica con electrolitos y un contenido de 500 mL. El nombre 'SPORADE' también está grabado en la parte inferior de la botella.",
+      "imagenes": [
+        "SPORADE_BLUEBERRY_500_2.png",
+        "SPORADE_BLUEBERRY_500_3.png"
+      ],
+      "imagen_principal": "SPORADE_BLUEBERRY_500_2.png",
+      "total_imagenes": 2
+    },
+    {
+      "id": "sporade_mandarina_500ml",
+      "marca": "Sporade",
+      "producto": "Sporade",
+      "sabor": "Mandarina",
+      "capacidad": "500ml",
+      "tipo_bebida": "deportiva",
+      "tipo_envase": "botella plástica",
+      "colores_principales": [
+        "naranja",
+        "verde",
+        "blanco"
+      ],
+      "texto_visible": "SPORADE, Mandarina, Contenido neto 500 mL",
+      "caracteristicas_especiales": "No visible",
+      "descripcion_visual": "Botella plástica transparente con tapa verde, contiene un líquido de color naranja. La etiqueta principal es de color verde y naranja, mostrando el nombre 'SPORADE' en blanco y el sabor 'Mandarina'.",
+      "imagenes": [
+        "SPORADE_MANDARINA_500.png"
+      ],
+      "imagen_principal": "SPORADE_MANDARINA_500.png",
+      "total_imagenes": 1
+    },
+    {
+      "id": "sporade_mandarina_500ml",
+      "marca": "Sporade",
+      "producto": "Sporade",
+      "sabor": "Mandarina",
+      "capacidad": "500ml",
+      "tipo_bebida": "deportiva",
+      "tipo_envase": "botella plástica",
+      "colores_principales": [
+        "verde",
+        "naranja",
+        "blanco"
+      ],
+      "texto_visible": "SPORADE, 500 mL",
+      "caracteristicas_especiales": "No visible",
+      "descripcion_visual": "Botella plástica con tapa verde. La etiqueta es predominantemente verde y naranja, con el nombre 'SPORADE' en blanco. El líquido dentro de la botella es de color naranja/ámbar.",
+      "imagenes": [
+        "SPORADE_MANDARINA_500_2.png",
+        "SPORADE_MANDARINA_500_3.png"
+      ],
+      "imagen_principal": "SPORADE_MANDARINA_500_2.png",
+      "total_imagenes": 2
+    },
+    {
+      "id": "sporade_manzana_sin_azucar_500ml",
+      "marca": "Sporade",
+      "producto": "Sporade",
+      "sabor": "Manzana Sin Azucar",
+      "capacidad": "500ml",
+      "tipo_bebida": "deportiva",
+      "tipo_envase": "botella plástica",
+      "colores_principales": [
+        "verde",
+        "blanco",
+        "negro"
+      ],
+      "texto_visible": "SPORADE, Contenido net 500 mL, Apple ice, SIN AZÚCAR",
+      "caracteristicas_especiales": "Sin azúcar",
+      "descripcion_visual": "Botella plástica transparente con tapa negra. La etiqueta es predominantemente verde y blanca, mostrando la marca SPORADE, el sabor Apple ice y la indicación 'SIN AZÚCAR'. El líquido dentro de la botella es transparente.",
+      "imagenes": [
+        "SPORADE_MANZANA_SIN_AZUCAR_500.png"
+      ],
+      "imagen_principal": "SPORADE_MANZANA_SIN_AZUCAR_500.png",
+      "total_imagenes": 1
+    },
+    {
+      "id": "sporade_tropical_500ml",
+      "marca": "Sporade",
+      "producto": "Sporade",
+      "sabor": "Tropical",
+      "capacidad": "500ml",
+      "tipo_bebida": "Deportiva",
+      "tipo_envase": "Botella plástica",
+      "colores_principales": [
+        "Rojo",
+        "Verde",
+        "Negro",
+        "Blanco"
+      ],
+      "texto_visible": "SPORADE, tropical, Contenido neto: 588 mL",
+      "caracteristicas_especiales": "No visible",
+      "descripcion_visual": "Bebida de color rojo/naranja en una botella plástica transparente con una tapa verde. La etiqueta es predominantemente negra y verde, mostrando el nombre 'SPORADE' en letras blancas y la palabra 'tropical' en una franja roja. Incluye información de volumen y códigos de barras/QR.",
+      "imagenes": [
+        "SPORADE_TROPICAL_500.png"
+      ],
+      "imagen_principal": "SPORADE_TROPICAL_500.png",
+      "total_imagenes": 1
+    },
+    {
+      "id": "sporade_tropical_500ml",
+      "marca": "Sporade",
+      "producto": "Sporade",
+      "sabor": "Tropical",
+      "capacidad": "500ml",
+      "tipo_bebida": "deportiva",
+      "tipo_envase": "botella plástica",
+      "colores_principales": [
+        "rojo",
+        "verde",
+        "negro"
+      ],
+      "texto_visible": "SPORADE, Bebida con electrolitos, Tropical",
+      "caracteristicas_especiales": "Con electrolitos",
+      "descripcion_visual": "Botella plástica transparente con líquido de color rojo anaranjado y tapa verde. La etiqueta es predominantemente negra con el nombre 'SPORADE' en verde, acompañada de un diseño de hojas verdes y la indicación 'Tropical'. Se identifica como una bebida con electrolitos.",
+      "imagenes": [
+        "SPORADE_TROPICAL_500_2.png",
+        "SPORADE_TROPICAL_500_3.png",
+        "SPORADE_TROPICAL_500_4.png",
+        "SPORADE_TROPICAL_500_5.png",
+        "SPORADE_TROPICAL_500_6.png"
+      ],
+      "imagen_principal": "SPORADE_TROPICAL_500_2.png",
+      "total_imagenes": 5
+    },
+    {
+      "id": "sporade_uva_500ml",
+      "marca": "Sporade",
+      "producto": "Sporade",
+      "sabor": "Uva",
+      "capacidad": "500ml",
+      "tipo_bebida": "deportiva",
+      "tipo_envase": "botella plástica",
+      "colores_principales": [
+        "verde",
+        "morado",
+        "negro"
+      ],
+      "texto_visible": "Contenido neto 500 mL SPORADE Bebida con sales de electrolitos sabor Uva SPORADE",
+      "caracteristicas_especiales": "Con sales de electrolitos, sabor Uva",
+      "descripcion_visual": "Bebida deportiva sabor uva en una botella plástica con tapa verde. La etiqueta es predominantemente morada y verde, mostrando el nombre 'SPORADE' y el contenido neto de 500 mL. El líquido es de color morado oscuro.",
+      "imagenes": [
+        "SPORADE_UVA_500.png"
+      ],
+      "imagen_principal": "SPORADE_UVA_500.png",
+      "total_imagenes": 1
+    }
+  ]
+}

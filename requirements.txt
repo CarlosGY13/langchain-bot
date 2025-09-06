@@ -6,3 +6,4 @@ langchain-huggingface
 python-dotenv
 faiss-cpu
 pypdf
+pillow

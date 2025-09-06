@@ -17,6 +17,8 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.chains import RetrievalQA
 import os
 import glob
+import json
+import difflib
 
 def preprocess_pdf(pdf_path):
     """
@@ -118,6 +120,79 @@ def create_or_load_faiss_db():
     
     return db, embeddings
 
+def load_products_database(products_file="productos_aje.json"):
+    """
+    Cargar base de datos de productos AJE
+    """
+    try:
+        if os.path.exists(products_file):
+            with open(products_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                print(f"Base de productos cargada: {data['metadata']['total_productos']} productos")
+                return data['productos']
+        else:
+            print(f"Archivo {products_file} no encontrado. Ejecuta 'python process_products.py' primero.")
+            return []
+    except Exception as e:
+        print(f"Error cargando productos: {e}")
+        return []
+
+def search_products(query, products_db, max_results=3):
+    """
+    Buscar productos por nombre, marca, sabor o características
+    """
+    if not products_db:
+        return []
+    
+    query_lower = query.lower()
+    matches = []
+    
+    query_words = query_lower.split()
+    
+    for product in products_db:
+        score = 0
+        match_details = []
+        
+        searchable_text = f"{product['marca']} {product['producto']} {product['sabor']} {product['capacidad']}".lower()
+        
+        if any(word in product['marca'].lower() for word in query_words):
+            score += 10
+            match_details.append("marca")
+        
+        if any(word in product['sabor'].lower() for word in query_words):
+            score += 8
+            match_details.append("sabor")
+        
+        if any(word in str(product['capacidad']).lower() for word in query_words):
+            score += 5
+            match_details.append("capacidad")
+        
+        if any(word in product.get('tipo_bebida', '').lower() for word in query_words):
+            score += 6
+            match_details.append("tipo")
+        
+        if any(word in product.get('caracteristicas_especiales', '').lower() for word in query_words):
+            score += 4
+            match_details.append("características")
+        
+        for word in query_words:
+            if len(word) > 3:
+                similarity = difflib.SequenceMatcher(None, word, product['sabor'].lower()).ratio()
+                if similarity > 0.6:
+                    score += int(similarity * 5)
+                    match_details.append("similitud")
+        
+        if score > 0:
+            matches.append({
+                'product': product,
+                'score': score,
+                'match_details': match_details
+            })
+    
+    matches.sort(key=lambda x: x['score'], reverse=True)
+    return [match['product'] for match in matches[:max_results]]
+
+
 def create_rag_chain(db, llm):
     """
     Configurar RetrievalQA con parámetros optimizados
@@ -154,7 +229,7 @@ Respuesta concisa:"""
     
     return qa_chain
 
-def get_response_with_rag(user_input, rag_chain, model, memory):
+def get_response_with_rag(user_input, rag_chain, model, memory, products_context=""):
     """
     Función que integra RAG automáticamente sin prefijos
     """
@@ -166,17 +241,20 @@ def get_response_with_rag(user_input, rag_chain, model, memory):
             
             chat_history = memory.buffer_as_str if hasattr(memory, 'buffer_as_str') else ""
             
-            prompt = f"""Basándote en el contexto del documento y la conversación previa, responde de manera concisa (máximo 4 oraciones).
+            prompt = f"""Eres el asistente virtual de AJE Group. Tienes acceso a información sobre la estrategia de la empresa y también sobre nuestros productos. Usa la información más relevante para responder de manera natural y conversacional.
 
-Contexto del documento:
+Información de estrategia empresarial:
 {context}
+
+Información de productos (si es relevante):
+{products_context}
 
 Conversación previa:
 {chat_history}
 
 Pregunta: {user_input}
 
-Respuesta concisa:"""
+Responde de forma natural y amigable como un experto de AJE Group:"""
             
             response = model.invoke(prompt)
             response_content = response.content if hasattr(response, 'content') else str(response)
@@ -187,8 +265,6 @@ Respuesta concisa:"""
                     page = doc.metadata.get('page_number', 'N/A')
                     sources.add(f"{doc.metadata['source_file']} (p.{page})")
             
-            if sources:
-                response_content += f"\n\n[Fuente: {', '.join(list(sources)[:2])}]"
             
             return response_content, True
         else:
@@ -222,18 +298,20 @@ def main():
         else:
             print("Funcionando sin RAG - agrega PDFs a la carpeta 'data/'")
         
+        print("Cargando base de datos de productos...")
+        products_db = load_products_database()
+        
         test_response = model.invoke("Hola, responde brevemente que estás funcionando")
         print("Conexión exitosa!")
         print(f"Prueba: {test_response.content}")
     
         print(f"\n{'='*60}")
         rag_status = "CON RAG" if rag_chain else "SIN RAG"
-        print(f"CHATBOT GEMINI 2.5 FLASH + MEMORIA + {rag_status}")
-        print("="*60)
-        print("El chatbot integra automáticamente información de documentos cuando es relevante")
-        print("Escribe 'salir' para terminar")
-        print("Escribe 'memoria' para ver el historial") 
-        print("-"*60)
+        products_status = f"+ {len(products_db)} PRODUCTOS" if products_db else ""
+        print(f"\n¡Hola! Soy el asistente virtual de AJE Group")
+        print("="*50)
+        print("¡Pregúntame lo que necesites!")
+        print("-"*50)
         
         conversation_count = 0
         
@@ -264,6 +342,39 @@ def main():
             try:
                 response_text = ""
                 
+                products_context = ""
+                if products_db:
+                    found_products = search_products(user_input, products_db, max_results=5)
+                    if found_products:
+                        products_context = "\n\nInformación de productos AJE disponibles:\n"
+                        for p in found_products:
+                            products_context += f"- {p['marca']} {p['sabor']} ({p['capacidad']}) - {p.get('tipo_bebida', 'bebida')}"
+                            if p.get('caracteristicas_especiales') and p['caracteristicas_especiales'] != "No visible":
+                                products_context += f" - {p['caracteristicas_especiales']}"
+                            if p.get('descripcion_visual'):
+                                products_context += f" - {p['descripcion_visual'][:100]}..."
+                            products_context += "\n"
+                    
+                    elif any(word in user_input.lower() for word in ['productos', 'catálogo', 'portafolio', 'marcas']):
+                        products_context = "\n\nPortafolio completo de productos AJE:\n"
+                        by_brand = {}
+                        for p in products_db:
+                            brand = p['marca']
+                            if brand not in by_brand:
+                                by_brand[brand] = []
+                            by_brand[brand].append(p)
+                        
+                        for brand, products in by_brand.items():
+                            products_context += f"\n{brand}:\n"
+                            unique_products = {}
+                            for p in products:
+                                key = f"{p['sabor']}_{p['capacidad']}"
+                                if key not in unique_products:
+                                    unique_products[key] = p
+                            
+                            for p in unique_products.values():
+                                products_context += f"- {p['sabor']} ({p['capacidad']}) - {p.get('tipo_bebida', 'bebida')}\n"
+                
                 if rag_chain:
                     class SimpleMemory:
                         def __init__(self, history):
@@ -280,7 +391,7 @@ def main():
                             ])
                     
                     memory_obj = SimpleMemory(conversation_history)
-                    rag_response, used_rag = get_response_with_rag(user_input, rag_chain, model, memory_obj)
+                    rag_response, used_rag = get_response_with_rag(user_input, rag_chain, model, memory_obj, products_context)
                     
                     if used_rag and rag_response:
                         response_text = rag_response
@@ -293,19 +404,20 @@ def main():
                                 for user, bot in recent_history
                             ])
                         
-                        prompt = f"""Responde de manera concisa y directa (máximo 4 oraciones).
+                        prompt = f"""Eres el asistente virtual de AJE Group. Responde de manera natural y conversacional como si fueras un experto en la empresa.
 
 Conversación previa:
 {history_context}
 
+{products_context}
+
 Usuario: {user_input}
 
-Respuesta concisa:"""
+Responde de forma natural y amigable:"""
                         
                         response = model.invoke(prompt)
                         response_text = response.content if hasattr(response, 'content') else str(response)
                 else:
-                    # Sin RAG - solo conversación normal
                     recent_history = conversation_history[-3:]
                     history_context = ""
                     if recent_history:
@@ -314,14 +426,16 @@ Respuesta concisa:"""
                             for user, bot in recent_history
                         ])
                     
-                    prompt = f"""Responde de manera concisa y directa (máximo 4 oraciones).
+                    prompt = f"""Eres el asistente virtual de AJE Group. Responde de manera natural y conversacional como si fueras un experto en la empresa.
 
 Conversación previa:
 {history_context}
 
+{products_context}
+
 Usuario: {user_input}
 
-Respuesta concisa:"""
+Responde de forma natural y amigable:"""
                     
                     response = model.invoke(prompt)
                     response_text = response.content if hasattr(response, 'content') else str(response)
