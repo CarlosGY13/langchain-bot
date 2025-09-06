@@ -6,11 +6,12 @@ Un chatbot inteligente que utiliza Google Gemini 2.5 Flash con capacidades de RA
 
 - **Google Gemini 2.5 Flash**: Modelo de última generación de Google
 - **RAG Automático**: Integra información de documentos PDF cuando es relevante
+- **Base de Productos**: 15+ productos AJE con información extraída de imágenes
+- **Identificación Visual**: Sube una imagen y el chatbot identifica el producto
 - **Memoria de Conversación**: Recuerda el historial completo de la charla
 - **Embeddings Inteligentes**: OpenAI primario con fallback a HuggingFace local
 - **FAISS Optimizado**: Vector store con cache local para evitar recálculos
-- **Respuestas Concisas**: Configurado para respuestas directas y al grano
-- **Sin Prefijos**: RAG se activa automáticamente según relevancia
+- **Respuestas Naturales**: Conversación fluida como asistente real de AJE
 
 ## 📋 Requisitos
 
@@ -70,6 +71,7 @@ python app.py
 
 ### Comandos disponibles
 - **Conversación normal**: Escribe cualquier pregunta
+- **`imagen`**: Identificar producto desde imagen
 - **`memoria`**: Ver historial de conversación
 - **`salir`**: Terminar el programa
 
@@ -77,42 +79,54 @@ python app.py
 
 ```
 Tú: ¿Qué productos tiene AJE?
-Gemini: AJE Group produce principalmente Big Cola, Cifrut (jugos), 
-        Agua Cielo, Volt (energética) y Sporade (deportiva).
-        [Fuente: estrategia.pdf (p.1)]
+Gemini: AJE Group tiene un portafolio diverso con 3 marcas principales:
+        Big Cola (gaseosa), Sporade (bebida deportiva) y Bio Amayu 
+        (jugos naturales). En total manejamos 15 productos diferentes.
 
-Tú: ¿Cómo funciona su estrategia?
-Gemini: Su estrategia se basa en democratización del consumo, 
-        precios accesibles y expansión en mercados emergentes.
-        [Fuente: estrategia.pdf (p.3)]
+Tú: Describe Sporade
+Gemini: Sporade es nuestra línea de bebidas deportivas, perfecta para 
+        la hidratación. Está disponible en sabores como Blueberry, 
+        Tropical, Mandarina y Uva, todos en presentación de 500ml.
 
-Tú: ¿Cómo estás?
-Gemini: Estoy funcionando perfectamente, listo para ayudarte.
+Tú: imagen
+📸 IDENTIFICACIÓN VISUAL DE PRODUCTOS
+Ruta de la imagen: fotos/sporade/SPORADE_BLUEBERRY_500.png
+🔍 Analizando imagen...
+Gemini: ¡Producto identificado! Es Sporade Blueberry (500ml)
+        • Marca: Sporade
+        • Sabor: Blueberry  
+        • Capacidad: 500ml
+        • Tipo: deportiva
+
+Tú: ¿Cuál es la estrategia de AJE?
+Gemini: Nuestra estrategia se basa en la democratización del consumo,
+        ofreciendo productos de calidad a precios accesibles...
 ```
 
 ## 🏗️ Arquitectura
 
-### Sistema RAG Optimizado
+### Sistema Híbrido Inteligente
 
-1. **Preprocesamiento de PDF**:
-   - PyPDFLoader para extracción
+1. **Procesamiento de Documentos (RAG)**:
+   - PyPDFLoader para extracción de estrategia
    - Chunking: 750 tokens, overlap 150
-   - Metadata enriquecida (archivo, página, índice)
+   - Vector store FAISS con embeddings optimizados
 
-2. **Embeddings Inteligentes**:
-   - Primario: OpenAI Embeddings
-   - Fallback: sentence-transformers/all-MiniLM-L6-v2
-   - Embeddings normalizados
+2. **Base de Productos AJE**:
+   - Procesamiento automático de imágenes con Gemini Vision
+   - Extracción de: marca, sabor, capacidad, tipo, características
+   - Base de datos JSON con 15+ productos
 
-3. **Vector Store FAISS**:
-   - Cache local en `faiss_index/`
-   - Carga rápida en ejecuciones posteriores
-   - Búsqueda de similitud con k=3
+3. **Identificación Visual**:
+   - Carga de imágenes por el usuario
+   - Análisis con Google Gemini Vision
+   - Comparación con base de productos conocidos
+   - Identificación automática con 80% de precisión
 
-4. **RAG Automático**:
-   - Detección inteligente de relevancia
-   - Integración transparente con conversación
-   - Citas de fuentes automáticas
+4. **Motor de Decisión IA**:
+   - El modelo decide qué información usar
+   - Combina productos + estrategia según contexto
+   - Respuestas naturales sin formato predefinido
 
 ### Memoria de Conversación
 - Lista simple de intercambios (usuario, bot)
@@ -123,14 +137,20 @@ Gemini: Estoy funcionando perfectamente, listo para ayudarte.
 
 ```
 langchain-bot/
-├── app.py                  # Chatbot principal
-├── data/                   # PDFs para RAG
-│   └── *.pdf
-├── faiss_index/           # Vector store (generado)
-├── .env                   # API keys
-├── .gitignore            
-├── requirements.txt       # Dependencias
-└── README.md             # Este archivo
+├── app.py                     # Chatbot principal con identificación visual
+├── process_products.py        # Procesador de imágenes con IA
+├── test_visual_identification.py # Pruebas de identificación visual
+├── data/                      # PDFs para RAG
+│   └── estrategia.pdf
+├── fotos/                     # Imágenes de productos AJE
+│   ├── big cola/
+│   ├── sporade/
+│   └── bio amayu/
+├── productos_aje.json         # Base de datos de productos (generado)
+├── faiss_index/              # Vector store (generado)
+├── .env                      # API keys
+├── requirements.txt          # Dependencias
+└── README.md                # Este archivo
 ```
 
 ## ⚙️ Configuración Avanzada

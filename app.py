@@ -19,6 +19,9 @@ import os
 import glob
 import json
 import difflib
+import base64
+from pathlib import Path
+import re
 
 def preprocess_pdf(pdf_path):
     """
@@ -48,7 +51,6 @@ def preprocess_pdf(pdf_path):
             })
             chunks.append(chunk)
     
-    print(f"Creados {len(chunks)} chunks del PDF")
     return chunks
 
 def create_embeddings():
@@ -57,20 +59,15 @@ def create_embeddings():
     """
     try:
         if os.getenv("OPENAI_API_KEY"):
-            print("Intentando OpenAI Embeddings...")
             embeddings = OpenAIEmbeddings()
             embeddings.embed_query("test")
-            print("OpenAI Embeddings configurado exitosamente")
             return embeddings
         else:
             raise Exception("No OpenAI key")
-    except Exception as e:
-        if "insufficient_quota" in str(e) or "429" in str(e):
-            print("Cuota de OpenAI agotada, usando sentence-transformers (local)")
-        else:
-            print("Usando sentence-transformers (local)")
-        
-        return HuggingFaceEmbeddings(
+    except Exception:
+        pass
+    
+    return HuggingFaceEmbeddings(
             model_name="sentence-transformers/all-MiniLM-L6-v2",
             model_kwargs={'device': 'cpu'},
             encode_kwargs={'normalize_embeddings': True}
@@ -85,22 +82,17 @@ def create_or_load_faiss_db():
     
     if os.path.exists(faiss_path):
         try:
-            print("Cargando base FAISS existente...")
             db = FAISS.load_local(
                 faiss_path, 
                 embeddings, 
                 allow_dangerous_deserialization=True
             )
-            print("Base FAISS cargada exitosamente")
             return db, embeddings
-        except Exception as e:
-            print(f"Error cargando FAISS: {e}. Recreando...")
-    
-    print("Creando nueva base FAISS...")
+        except Exception:
+            pass
     
     pdf_files = glob.glob("data/*.pdf")
     if not pdf_files:
-        print("No se encontraron PDFs en la carpeta 'data/'")
         return None, embeddings
     
     all_chunks = []
@@ -109,14 +101,10 @@ def create_or_load_faiss_db():
         all_chunks.extend(chunks)
     
     if not all_chunks:
-        print("No se pudieron procesar documentos")
         return None, embeddings
     
-    print(f"Creando base FAISS con {len(all_chunks)} chunks...")
     db = FAISS.from_documents(all_chunks, embeddings)
-    
     db.save_local(faiss_path)
-    print("Base FAISS guardada exitosamente")
     
     return db, embeddings
 
@@ -128,13 +116,10 @@ def load_products_database(products_file="productos_aje.json"):
         if os.path.exists(products_file):
             with open(products_file, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-                print(f"Base de productos cargada: {data['metadata']['total_productos']} productos")
                 return data['productos']
         else:
-            print(f"Archivo {products_file} no encontrado. Ejecuta 'python process_products.py' primero.")
             return []
-    except Exception as e:
-        print(f"Error cargando productos: {e}")
+    except Exception:
         return []
 
 def search_products(query, products_db, max_results=3):
@@ -191,6 +176,192 @@ def search_products(query, products_db, max_results=3):
     
     matches.sort(key=lambda x: x['score'], reverse=True)
     return [match['product'] for match in matches[:max_results]]
+
+def extract_volume_from_text(text):
+    """Extraer volumen en ml de un texto"""
+    try:
+        patterns = [
+            r'(\d+[,.]?\d*)\s*L',
+            r'(\d+)\s*ml',
+            r'(\d+[,.]?\d*)\s*litros?',
+        ]
+        
+        for pattern in patterns:
+            matches = re.findall(pattern, text, re.IGNORECASE)
+            if matches:
+                volume_str = matches[0].replace(',', '.')
+                volume = float(volume_str)
+                
+                if 'l' in pattern.lower() and 'ml' not in pattern.lower():
+                    volume = volume * 1000
+                
+                return int(volume)
+        
+        return None
+    except:
+        return None
+
+def extract_volume_from_capacity(capacity_str):
+    """Extraer volumen numérico de la capacidad (ej: '1000ml' -> 1000)"""
+    try:
+        if not capacity_str:
+            return None
+        
+        numbers = re.findall(r'\d+', capacity_str)
+        if numbers:
+            return int(numbers[0])
+        
+        return None
+    except:
+        return None
+
+def encode_image_for_vision(image_path):
+    """Codificar imagen para análisis con Gemini Vision"""
+    try:
+        with open(image_path, "rb") as image_file:
+            return base64.b64encode(image_file.read()).decode('utf-8')
+    except Exception:
+        return None
+
+def identify_product_from_image(image_path, products_db, model):
+    """
+    Identificar producto AJE desde imagen usando Gemini Vision
+    """
+    try:
+        base64_image = encode_image_for_vision(image_path)
+        if not base64_image:
+            return None, "No se pudo procesar la imagen"
+        
+        products_list = ""
+        for p in products_db:
+            products_list += f"- {p['marca']} {p['sabor']} ({p['capacidad']}) - {p.get('tipo_bebida', 'bebida')}\n"
+        
+        prompt = f"""Analiza esta imagen de producto de bebida y determina si corresponde a alguno de los productos AJE de la siguiente lista:
+
+PRODUCTOS AJE DISPONIBLES:
+{products_list}
+
+Instrucciones:
+1. Examina cuidadosamente la imagen
+2. Identifica la marca, sabor y capacidad visible en la etiqueta
+3. IMPORTANTE: Lee el volumen exacto que aparece en el envase (ej: 1,035L, 500ml, 3,0L)
+4. Compara con la lista de productos AJE disponibles
+5. Si encuentras una coincidencia de marca y sabor, responde: "PRODUCTO_IDENTIFICADO: [Marca] [Sabor] [Volumen exacto leído]"
+6. Si no encuentras coincidencia o no es un producto AJE, responde: "NO_IDENTIFICADO: [descripción de lo que ves]"
+
+Ejemplos de respuesta correcta:
+- "PRODUCTO_IDENTIFICADO: Big Cola Cola 1,035 L"
+- "PRODUCTO_IDENTIFICADO: Sporade Blueberry 500ml"
+- "NO_IDENTIFICADO: Coca-Cola 350ml (no es producto AJE)"
+
+Respuesta:"""
+
+        from langchain_core.messages import HumanMessage
+        
+        message = HumanMessage(
+            content=[
+                {"type": "text", "text": prompt},
+                {
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/png;base64,{base64_image}"}
+                }
+            ]
+        )
+        
+        response = model.invoke([message])
+        response_text = response.content if hasattr(response, 'content') else str(response)
+
+        # Procesar respuesta - manejar tanto formato "PRODUCTO_IDENTIFICADO:" como detección directa
+        if "PRODUCTO_IDENTIFICADO:" in response_text:
+            product_info = response_text.split("PRODUCTO_IDENTIFICADO:")[1].strip()
+        else:
+            # Si no hay formato específico, usar toda la respuesta para análisis
+            product_info = response_text.strip()
+            
+        best_match = None
+        best_score = 0
+        detected_volume = extract_volume_from_text(product_info)
+        
+        for p in products_db:
+            score = 0
+            
+            # Coincidencia exacta de nombre
+            product_name = f"{p['marca']} {p['sabor']} ({p['capacidad']})"
+            if product_name.lower() in product_info.lower():
+                return p, f"¡Producto identificado! Es {product_name}"
+            
+            # Coincidencia con tolerancia de volumen (ignorar espacios)
+            marca_match = p['marca'].lower().replace(' ', '') in product_info.lower().replace(' ', '')
+            sabor_match = p['sabor'].lower().replace(' ', '') in product_info.lower().replace(' ', '')
+            
+            if marca_match and sabor_match:
+                score += 10
+                
+                # Extraer volumen detectado y comparar con tolerancia
+                product_volume = extract_volume_from_capacity(p['capacidad'])
+                
+                if detected_volume and product_volume:
+                    volume_diff = abs(detected_volume - product_volume)
+                    
+                    if volume_diff <= 100:  # Tolerancia de 100ml
+                        score += 5
+                        if volume_diff <= 50:  # Bonus por mayor precisión
+                            score += 3
+            
+            if score > best_score:
+                best_score = score
+                best_match = p
+        
+        if best_match and best_score >= 10:
+            # Mostrar información sobre la tolerancia si aplica
+            product_volume = extract_volume_from_capacity(best_match['capacidad'])
+            
+            message = f"¡Producto identificado! Es {best_match['marca']} {best_match['sabor']} ({best_match['capacidad']})"
+            
+            if detected_volume and product_volume and detected_volume != product_volume:
+                volume_diff = abs(detected_volume - product_volume)
+                message += f" (detectado: {detected_volume}ml, diferencia: ±{volume_diff}ml)"
+            
+            return best_match, message
+        
+        return None, f"Producto detectado: {product_info}, pero no encontrado en base de datos (score: {best_score})"
+            
+    except Exception as e:
+        return None, f"Error analizando imagen: {str(e)}"
+
+def handle_image_upload():
+    """
+    Manejar carga de imagen para identificación
+    """
+    print("\nIDENTIFICACIÓN VISUAL DE PRODUCTOS")
+    print("=" * 50)
+    print("Puedes subir una imagen de un producto AJE para identificarlo.")
+    print("Formatos soportados: .png, .jpg, .jpeg")
+    print("Escribe 'cancelar' para volver al chat normal.")
+    print("-" * 50)
+    
+    while True:
+        image_path = input("\nRuta de la imagen (o 'cancelar'): ").strip()
+        
+        if image_path.lower() == 'cancelar':
+            return None, "Identificación visual cancelada"
+        
+        if not image_path:
+            print("Por favor ingresa una ruta válida")
+            continue
+        
+        # Verificar si el archivo existe
+        if not os.path.exists(image_path):
+            print(f"Archivo no encontrado: {image_path}")
+            continue
+        
+        # Verificar extensión
+        valid_extensions = ['.png', '.jpg', '.jpeg', '.PNG', '.JPG', '.JPEG']
+        if not any(image_path.endswith(ext) for ext in valid_extensions):
+            print("Formato no soportado. Use: .png, .jpg, .jpeg")
+            continue
+        
+        return image_path, "Imagen cargada correctamente"
 
 
 def create_rag_chain(db, llm):
@@ -276,10 +447,7 @@ Responde de forma natural y amigable como un experto de AJE Group:"""
 
 def main():
     """Función principal del chatbot"""
-    print("Iniciando chatbot con Google Gemini 2.5 Flash...")
-    
     try:
-        print("Conectando con Google Gemini...")
         model = init_chat_model(
             "gemini-2.5-flash", 
             model_provider="google_genai",
@@ -288,29 +456,22 @@ def main():
         
         conversation_history = []
         
-        print("Inicializando sistema RAG...")
+        # Inicializar sistema RAG
         db, embeddings = create_or_load_faiss_db()
+        rag_chain = create_rag_chain(db, model) if db else None
         
-        rag_chain = None
-        if db:
-            rag_chain = create_rag_chain(db, model)
-            print("Sistema RAG configurado exitosamente")
-        else:
-            print("Funcionando sin RAG - agrega PDFs a la carpeta 'data/'")
-        
-        print("Cargando base de datos de productos...")
+        # Cargar base de productos
         products_db = load_products_database()
-        
-        test_response = model.invoke("Hola, responde brevemente que estás funcionando")
-        print("Conexión exitosa!")
-        print(f"Prueba: {test_response.content}")
     
-        print(f"\n{'='*60}")
-        rag_status = "CON RAG" if rag_chain else "SIN RAG"
-        products_status = f"+ {len(products_db)} PRODUCTOS" if products_db else ""
         print(f"\n¡Hola! Soy el asistente virtual de AJE Group")
         print("="*50)
+        print("Puedo ayudarte con:")
+        print("• Información sobre productos y estrategia")
+        print("• Identificación visual de productos (sube una imagen)")
         print("¡Pregúntame lo que necesites!")
+        print("\nComandos especiales:")
+        print("• 'imagen' - Identificar producto desde imagen")
+        print("• 'salir' - Terminar conversación")
         print("-"*50)
         
         conversation_count = 0
@@ -321,6 +482,39 @@ def main():
             if user_input.lower() in ['salir', 'exit', 'quit', 'q']:
                 print("\n¡Hasta luego! / Goodbye!")
                 break
+            
+            if user_input.lower() in ['imagen', 'img', 'photo', 'foto']:
+                image_path, message = handle_image_upload()
+                if image_path:
+                    print(f"\n🔍 Analizando imagen: {Path(image_path).name}")
+                    print("Esto puede tomar unos segundos...")
+                    
+                    identified_product, result_message = identify_product_from_image(image_path, products_db, model)
+                    
+                    if identified_product:
+                        response_text = f"{result_message}\n\n"
+                        response_text += f"**Información del producto:**\n"
+                        response_text += f"• Marca: {identified_product['marca']}\n"
+                        response_text += f"• Sabor: {identified_product['sabor']}\n"
+                        response_text += f"• Capacidad: {identified_product['capacidad']}\n"
+                        response_text += f"• Tipo: {identified_product.get('tipo_bebida', 'No especificado')}\n"
+                        
+                        if identified_product.get('caracteristicas_especiales') and identified_product['caracteristicas_especiales'] != "No visible":
+                            response_text += f"• Características: {identified_product['caracteristicas_especiales']}\n"
+                        
+                        if identified_product.get('descripcion_visual'):
+                            response_text += f"• Descripción: {identified_product['descripcion_visual'][:150]}...\n"
+                        
+                        print(f"\nGemini: {response_text}")
+                        conversation_history.append(("Identificación de imagen", response_text))
+                    else:
+                        print(f"\nGemini: {result_message}")
+                        conversation_history.append(("Identificación de imagen", result_message))
+                else:
+                    print(f"\n{message}")
+                
+                conversation_count += 1
+                continue
             
             if user_input.lower() == 'memoria':
                 if conversation_history:
@@ -447,16 +641,14 @@ Responde de forma natural y amigable:"""
                 
             except Exception as e:
                 error_msg = str(e)
-                print(f"Error: {error_msg}")
-                
                 if "quota" in error_msg.lower():
-                    print("Cuota de API agotada")
+                    print("Error: Cuota de API agotada")
                 elif "rate" in error_msg.lower():
-                    print("Límite de velocidad alcanzado")
+                    print("Error: Límite de velocidad alcanzado")
                 elif "key" in error_msg.lower() or "auth" in error_msg.lower():
-                    print("Problema con la API key")
+                    print("Error: Problema con la API key")
                 else:
-                    print("Intenta reformular tu pregunta")
+                    print(f"Error: {error_msg}")
         
     except KeyboardInterrupt:
         print("\n\n¡Programa interrumpido por el usuario!")
