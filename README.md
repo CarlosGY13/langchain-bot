@@ -218,8 +218,3 @@ GOOGLE_API_KEY=tu_key_correcta
 **Solución**: El sistema usa doble limpieza (key dinámica + JavaScript)
 - Refrescar la página si persiste
 - Verificar que JavaScript esté habilitado
-
-
-## 📄 Licencia
-
-Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más detalles.
