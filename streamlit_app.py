@@ -223,7 +223,7 @@ def initialize_chatbot():
     try:
         model = init_chat_model(
             "gemini-2.0-flash-exp",
-            model_provider="google",
+            model_provider="google_genai",
             api_key=os.getenv("GOOGLE_API_KEY"),
             temperature=0.3
         )
@@ -231,8 +231,8 @@ def initialize_chatbot():
         products_db = load_products_database()
         
         try:
-            db = create_or_load_faiss_db()
-            rag_chain = create_rag_chain(model, db)
+            db, embeddings = create_or_load_faiss_db()
+            rag_chain = create_rag_chain(db, model) if db else None
         except Exception as e:
             st.warning(f"⚠️ RAG no disponible: {e}")
             rag_chain = None
@@ -254,7 +254,7 @@ def process_text_query(user_input, model, rag_chain, products_db, conversation_h
                 products_context += f"- {product['marca']} {product['sabor']} ({product['capacidad']})\n"
         
         if rag_chain:
-            response = get_response_with_rag(
+            response, used_rag = get_response_with_rag(
                 user_input, rag_chain, model, conversation_history, products_context
             )
         else:
